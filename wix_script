@@ -1,0 +1,48 @@
+$w.onReady(function () {
+    let lastTimestamp = null;
+
+    function fetchData() {
+        console.log("Fetching data from ThingSpeak...");
+
+        fetch('https://api.thingspeak.com/channels/###/feeds.json?results=1')
+            .then(response => response.json())
+            .then(data => {
+                console.log("Data received from ThingSpeak:", data);
+                if (data.feeds && data.feeds.length > 0) {
+                    const latestFeed = data.feeds[0];
+                    const hitCount = latestFeed.field1;
+                    const runTime = latestFeed.field2;
+                    const hitRate = latestFeed.field3;
+                    let newTimestamp = latestFeed.created_at;
+
+                    // Format the timestamp to remove 'T' and 'Z'
+                    newTimestamp = newTimestamp.replace('T', ' ').replace('Z', '');
+
+                    // Check if new data is received
+                    if (!lastTimestamp || new Date(newTimestamp) > new Date(lastTimestamp)) {
+                        lastTimestamp = newTimestamp;
+
+                        console.log(`Updating UI: Hit count: ${hitCount}, Run time: ${runTime}, Hit rate: ${hitRate}`);
+                        $w('#hitCount').text = `Hit count: ${hitCount}`;
+                        $w('#runTime').text = `Run time: ${runTime}`;
+                        $w('#hitRate').text = `Hit rate: ${hitRate}`;
+
+                        // Show green indicator when new data is received
+                        $w('#greenIndicator').show();
+                        $w('#redIndicator').hide();
+                        setTimeout(() => {
+                            $w('#greenIndicator').hide();
+                            $w('#redIndicator').show();
+                        }, 1000); // Switch back to red after 1 second
+                    }
+                } else {
+                    console.log("No data found in ThingSpeak response");
+                }
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Fetch data initially and then every 15 seconds
+    fetchData();
+    setInterval(fetchData, 15000); // 15000 milliseconds = 15 seconds
+});
