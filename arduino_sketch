@@ -1,3 +1,22 @@
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include <EEPROM.h>
+#include <TimerOne.h>
+
+// OLED display dimensions
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+
+// OLED I2C address
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+
+// Constants
+#define SIGNAL_THRESHOLD 50  // Threshold for detecting a signal
+#define RESET_THRESHOLD 25   // Threshold for resetting the signal
+#define LED_BRIGHTNESS 128    // Brightness for LED (0-255)
+#define TIMER_INTERVAL 1000000  // Timer interval (in microseconds) for 1 second
+
 // Variables
 char detector_name[40];
 
